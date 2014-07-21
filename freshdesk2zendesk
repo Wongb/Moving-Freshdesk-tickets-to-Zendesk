@@ -381,5 +381,5 @@ if __name__ == '__main__':
 			},
 		#status_migration={}
 	)
-	# f2z.migrate_ticket(728)
+	# f2z.migrate_ticket(7)
 	f2z.migrate_all(728)
