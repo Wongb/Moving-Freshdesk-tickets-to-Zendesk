@@ -373,13 +373,20 @@ if __name__ == '__main__':
 			os.path.dirname(__file__),
 			'fcache',
 		),
-		#custom_fields={},
-		#custom_field_freshdesk_url=,
-		type_migration={'Question':'Questions',
-						'Incident':'Incidents',
-						'Problem':'Problems',
-			},
-		#status_migration={}
+		custom_fields={
+			'github_ticket_url_96745':'23732372',
+		},
+		custom_field_freshdesk_url='23732452',
+		type_migration={
+			'Question':'Questions',
+			'Bug':'Incidents',
+			'License Issue':'Problems',
+			'Feature Request':'Tasks',
+			'Nice Tweet':'Problems',
+		},
+		status_migration={
+			8:('pending', 'pending-on-gitub',)
+		}
 	)
-	# f2z.migrate_ticket(728)
-	f2z.migrate_all(728)
+	# f2z.migrate_ticket(77)
+	f2z.migrate_all(205)
