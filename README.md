@@ -2,9 +2,15 @@ Moving-Freshdesk-tickets-to-Zendesk
 ===================================
 Moving tickets from one ticketing system to another
 
+Freshdesk and Zendesk API's
+===========================
+Lines 35 and 48 are both url fields. You need to add the https://"Freshdesk url" and "Zendesk url". This way the program can export and import correctly. This program uses your log-in credentials (right below) and access your ticketing system to export and import the tickets.
+
 Log-In credentials
 ===================================
-Go to lines 351-357 and put in your log-in ID's for Freshdesk and Zendesk. Company name is important for the program to accurately export and import the tickets to the right account
+Go to lines 351-357 and put in your log-in ID's for Freshdesk and Zendesk. Company name isn't important, but you should add then anyway.
+
+THIS AND THE API'S NEED TO BE PERFECTLY CORRECT IN ORDER FOR THIS CODE TO WORK!!!
 
 Storing the JSON files
 ======================
