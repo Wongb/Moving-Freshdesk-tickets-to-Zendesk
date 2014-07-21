@@ -31,7 +31,7 @@ class F2Z(object):
 
 		# Freshdesk API
 		self.freshdesk_company = freshdesk_company
-		self.freshdesk_base_url = u'https://uncommon.freshdesk.com'.format(
+		self.freshdesk_base_url = u'Freshdesk url here'.format(
 			company=freshdesk_company
 		)
 		self.freshdesk_header_auth = 'Basic {0}'.format(
@@ -44,7 +44,7 @@ class F2Z(object):
 
 		# Zendesk API
 		self.zendesk_company = zendesk_company
-		self.zendesk_base_url = u'https://bennettsrobotics.zendesk.com'.format(
+		self.zendesk_base_url = u'Zendesk url here'.format(
 			company=zendesk_company
 		)
 		self.zendesk_header_auth = 'Basic {0}'.format(
