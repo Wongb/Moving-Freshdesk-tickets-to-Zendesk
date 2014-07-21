@@ -1,6 +1,6 @@
-Python 3.4.1 (v3.4.1:c0e311e010fc, May 18 2014, 10:38:22) [MSC v.1600 32 bit (Intel)] on win32
-Type "copyright", "credits" or "license()" for more information.
->>> import urllib2
+# Python 3.4.1 (v3.4.1:c0e311e010fc, May 18 2014, 10:38:22) [MSC v.1600 32 bit (Intel)] on win32
+# Type "copyright", "credits" or "license()" for more information.
+import urllib2
 import base64
 import json
 import logging
@@ -349,13 +349,13 @@ Status: {status}
 		))
 
 if __name__ == '__main__':
-	freshdesk_company = 'uncommon schools'
-	freshdesk_username = 'scheng@uncommonschools.org'
-	freshdesk_pw = 'Uncommon14!'
+	freshdesk_company = 'Freshdesk Company here'
+	freshdesk_username = 'Log in username here'
+	freshdesk_pw = 'Password here'
 
-	zendesk_company = 'bennettsrobotics'
-	zendesk_username = 'wongb@students.spprep.org'
-	zendesk_pw = 'Wongb14!'
+	zendesk_company = 'Zendesk Company here'
+	zendesk_username = 'Log in username here'
+	zendesk_pw = 'Password here'
 
 	logger.setLevel(logging.DEBUG)
 	ch = logging.StreamHandler()
@@ -373,21 +373,13 @@ if __name__ == '__main__':
 			os.path.dirname(__file__),
 			'fcache',
 		),
-		custom_fields={
-			'github_ticket_url_96745':'23732372',
-		},
-		custom_field_freshdesk_url='23732452',
-		type_migration={
-			'Question':'Questions',
-			'Bug':'Incidents',
-			'License Issue':'Problems',
-			'Feature Request':'Tasks',
-			'Nice Tweet':'Problems',
-		},
-		status_migration={
-			8:('pending', 'pending-on-gitub',)
-		}
+		#custom_fields={},
+		#custom_field_freshdesk_url=,
+		type_migration={'Question':'Questions',
+						'Incident':'Incidents',
+						'Problem':'Problems',
+			},
+		#status_migration={}
 	)
-	# f2z.migrate_ticket(77)
-	f2z.migrate_all(205)
-	
+	# f2z.migrate_ticket(728)
+	f2z.migrate_all(728)
