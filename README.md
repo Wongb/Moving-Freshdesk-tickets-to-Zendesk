@@ -2,6 +2,10 @@ Moving-Freshdesk-tickets-to-Zendesk
 ===================================
 Moving tickets from one ticketing system to another
 
+Triggers
+========
+Zendesk has 8(?) default triggers that are there once you make an account. You should disable all these triggers becuase the migrating system treats all these tickets as new tickets. This will set of some of the triggers and send e-mails for all the tickets migrated. You are able to activate these triggers later without the problem of it sending e-mails to the people who requested help on the tickets.
+
 Running the program
 ====================
 You should download Python 2 (the other is Python 3) onto your computer. After that is set, you can create a new python file with my code that is posted. Just copy and paste the whole code in. You will have to make some minor adjustments to the code as stated below. To run the program, go to your command prompt and type in the name of the python file along with the .py. For example, if the code is named fresh2zen.py you type that exact file name into the command prompt. Be aware that a path is set to the Python directory folder.
@@ -12,7 +16,7 @@ Lines 35 and 48 are both url fields. You need to add the https://"Freshdesk url"
 
 Log-In credentials
 ===================================
-Go to lines 351-357 and put in your log-in ID's for Freshdesk and Zendesk. Company name isn't important, but you should add then anyway.
+Go to lines 362-368 and put in your log-in ID's for Freshdesk and Zendesk. Company name isn't important, but you should add then anyway.
 
 THIS AND THE API'S NEED TO BE PERFECTLY CORRECT IN ORDER FOR THIS CODE TO WORK!!!
 
@@ -26,7 +30,7 @@ line 377 has a type migration field. You will need to make sure these line up on
 
 Number of tickets
 ==================
-the last line, 384, has the number of tickets one would want to migrate. Just change the number inside the parenthesis to the number of tickets that need to be migrated.
+the last line, 396, has the number of tickets one would want to migrate. Just change the number inside the parenthesis to the number of tickets that need to be migrated.
 
 Open Issues
 ===========
