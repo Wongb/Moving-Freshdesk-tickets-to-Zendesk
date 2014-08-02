@@ -1,3 +1,4 @@
+
 import urllib2
 import base64
 import json
@@ -31,7 +32,7 @@ class F2Z(object):
 
 		# Freshdesk API
 		self.freshdesk_company = freshdesk_company
-		self.freshdesk_base_url = u'https://uncommon.freshdesk.com'.format(
+		self.freshdesk_base_url = u'Freshdesk url'.format(
 			company=freshdesk_company
 		)
 		self.freshdesk_header_auth = 'Basic {0}'.format(
@@ -44,7 +45,7 @@ class F2Z(object):
 
 		# Zendesk API
 		self.zendesk_company = zendesk_company
-		self.zendesk_base_url = u'https://uncommonschoolssupport1406752553.zendesk.com'.format(
+		self.zendesk_base_url = u'zendesk url'.format(
 			company=zendesk_company
 		)
 		self.zendesk_header_auth = 'Basic {0}'.format(
@@ -207,8 +208,8 @@ class F2Z(object):
 		d['status'] = 'new'
 		
 		# Assignee 
-		#fd_responder_id=int(fd_ticket['responder_id'])
-		#if fd_responder_id == 1000329211:
+		#fd_responder_id=int(fd_ticket['responder_id'])		#code to correlate asignee's on the tickets
+		#if fd_responder_id == 1000329211:					#numbers are the asignee id's on freshdesk and zendesk
 		#	zd_assignee_id = 488853704
 		#elif fd_responder_id == 1000329459:
 		#	zd_assignee_id = 489745234
@@ -301,7 +302,7 @@ Status: {status}
 				ticket_type=fd_ticket['ticket_type'],
 				source_name=fd_ticket['source_name'],
 				status=zd_status,
-				# assignee_id=zd_assignee_id,
+				# assignee_id=zd_assignee_id,  #used to maybe get the assingnee correct
 			)
 		}, zd_status,))
 
@@ -358,13 +359,13 @@ Status: {status}
 		))
 
 if __name__ == '__main__':
-	freshdesk_company = 'uncommon schools'
-	freshdesk_username = 'scheng@uncommonschools.org'
-	freshdesk_pw = 'Uncommon14!'
+	freshdesk_company = 'company name'
+	freshdesk_username = 'Longin e-mail'
+	freshdesk_pw = 'password'
 
-	zendesk_company = 'Uncommon Schools'
-	zendesk_username = 'wongb@students.spprep.org'
-	zendesk_pw = 'Wongb14!'
+	zendesk_company = 'company name'
+	zendesk_username = 'longin e-mail'
+	zendesk_pw = 'password'
 
 	logger.setLevel(logging.DEBUG)
 	ch = logging.StreamHandler()
@@ -385,9 +386,9 @@ if __name__ == '__main__':
 		#custom_fields={}, 
 		#custom_field_freshdesk_url=,
 		type_migration={'Question':'question',		#Customs type fields that correlate from Freshdesk to Zendesk respectively
-				'Incident':'incident',
-				'Problem':'problem',
-				'Feature Request':'question',
+						'Incident':'incident',
+						'Problem':'problem',
+						'Feature Request':'question',
 			},
 		#status_migration={}
 	)
