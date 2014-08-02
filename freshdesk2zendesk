@@ -1,5 +1,3 @@
-# Python 3.4.1 (v3.4.1:c0e311e010fc, May 18 2014, 10:38:22) [MSC v.1600 32 bit (Intel)] on win32
-# Type "copyright", "credits" or "license()" for more information.
 import urllib2
 import base64
 import json
@@ -33,7 +31,7 @@ class F2Z(object):
 
 		# Freshdesk API
 		self.freshdesk_company = freshdesk_company
-		self.freshdesk_base_url = u'Freshdesk url here'.format(
+		self.freshdesk_base_url = u'https://uncommon.freshdesk.com'.format(
 			company=freshdesk_company
 		)
 		self.freshdesk_header_auth = 'Basic {0}'.format(
@@ -46,7 +44,7 @@ class F2Z(object):
 
 		# Zendesk API
 		self.zendesk_company = zendesk_company
-		self.zendesk_base_url = u'Zendesk url here'.format(
+		self.zendesk_base_url = u'https://uncommonschoolssupport1406752553.zendesk.com'.format(
 			company=zendesk_company
 		)
 		self.zendesk_header_auth = 'Basic {0}'.format(
@@ -207,7 +205,17 @@ class F2Z(object):
 			d['solved_at'] = fd_ticket['updated_at']
 		# Set all tickets to new and change status after
 		d['status'] = 'new'
-
+		
+		# Assignee 
+		#fd_responder_id=int(fd_ticket['responder_id'])
+		#if fd_responder_id == 1000329211:
+		#	zd_assignee_id = 488853704
+		#elif fd_responder_id == 1000329459:
+		#	zd_assignee_id = 489745234
+		#elif fd_responder_id == 1000329458:
+		#	zd_assignee_id = 489745254
+		#else: zd_assignee_id = 0
+		
 		# Priority
 		priority = int(fd_ticket['priority'])
 		if priority == 1:
@@ -293,6 +301,7 @@ Status: {status}
 				ticket_type=fd_ticket['ticket_type'],
 				source_name=fd_ticket['source_name'],
 				status=zd_status,
+				# assignee_id=zd_assignee_id,
 			)
 		}, zd_status,))
 
@@ -349,13 +358,13 @@ Status: {status}
 		))
 
 if __name__ == '__main__':
-	freshdesk_company = 'Freshdesk Company here'
-	freshdesk_username = 'Log in username here'
-	freshdesk_pw = 'Password here'
+	freshdesk_company = 'uncommon schools'
+	freshdesk_username = 'scheng@uncommonschools.org'
+	freshdesk_pw = 'Uncommon14!'
 
-	zendesk_company = 'Zendesk Company here'
-	zendesk_username = 'Log in username here'
-	zendesk_pw = 'Password here'
+	zendesk_company = 'Uncommon Schools'
+	zendesk_username = 'wongb@students.spprep.org'
+	zendesk_pw = 'Wongb14!'
 
 	logger.setLevel(logging.DEBUG)
 	ch = logging.StreamHandler()
@@ -371,22 +380,16 @@ if __name__ == '__main__':
 		zendesk_pw=zendesk_pw,
 		freshdesk_cache_dir=os.path.join(
 			os.path.dirname(__file__),
-			'fcache',
+			'fcache',								#create a fcashe file in the same directory as the python program
 		),
-		custom_fields={
-			'github_ticket_url_96745':'23732372',
-		},
-		custom_field_freshdesk_url='23732452',
-		type_migration={
-			'Question':'Questions',
-			'Bug':'Incidents',
-			'License Issue':'Problems',
-			'Feature Request':'Tasks',
-			'Nice Tweet':'Problems',
-		},
-		status_migration={
-			8:('pending', 'pending-on-gitub',)
-		}
+		#custom_fields={}, 
+		#custom_field_freshdesk_url=,
+		type_migration={'Question':'question',		#Customs type fields that correlate from Freshdesk to Zendesk respectively
+				'Incident':'incident',
+				'Problem':'problem',
+				'Feature Request':'question',
+			},
+		#status_migration={}
 	)
-	# f2z.migrate_ticket(77)
-	f2z.migrate_all(205)
+	# Number of tickets to be migrated(728)
+	f2z.migrate_all(728)
