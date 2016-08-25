@@ -5,6 +5,7 @@ import logging
 import os
 import re
 import unicodedata
+import urllib
 
 logger = logging.getLogger(__name__)
 
@@ -239,30 +240,6 @@ class F2Z(object):
 				logger.warn('No ticket type migration for {0}'.format(
 					fd_ticket['ticket_type']
 				))
-
-		# Send POST Request
-		request = urllib2.Request(
-			url=self.zendesk_base_url + '/api/v2/tickets.json',
-			data=json.dumps({
-				'ticket':d,
-			}),
-			headers={
-				'Authorization':self.zendesk_header_auth,
-				'Content-Type':'application/json',
-			}
-		)
-		try:
-			response = urllib2.urlopen(request)
-		except urllib2.HTTPError as e:
-			logger.error(e.read())
-		else:
-			ticket_url = response.info()['Location']
-			logger.info('Ticket POSTed to Zendesk: HTTP {0}: {1}'.format(
-				response.getcode(),
-				response.info()['Location'],
-			))
-			zd_ticket = json.loads(response.read())
-
 		# Updates / Comments
 		updates = []
 		for note in fd_ticket['notes']:
@@ -271,8 +248,7 @@ class F2Z(object):
 				'public':not note['private'],
 				'body':note['body'],
 			}
-			if int(note['user_id']) == int(fd_ticket['requester_id']):
-				comment['author_id'] = zd_ticket['ticket']['requester_id']
+			comment['author_id'] = self.fresh_to_zen(note['user_id'])
 			updates.append((comment, None,))
 		# Last Comment for Migration and Status
 		updates.append(({
@@ -294,43 +270,40 @@ Status: {status}
 			)
 		}, zd_status,))
 
-		# Send PUT Requests for Comments
-		for (comment, status,) in updates:
-			tk = {
-				'comment':comment,
+		d["comments"] = [x[0] for x in updates]
+
+		# Send POST Request
+		request = urllib2.Request(
+			url=self.zendesk_base_url + '/api/v2/imports/tickets.json',
+			data=json.dumps({
+				'ticket':d,
+			}),
+			headers={
+				'Authorization':self.zendesk_header_auth,
+				'Content-Type':'application/json',
 			}
-			if status:
-				tk['status'] = status
-			request = urllib2.Request(
-				url=ticket_url,
-				data=json.dumps({
-					'ticket':tk,
-				}),
-				headers={
-					'Authorization':self.zendesk_header_auth,
-					'Content-Type':'application/json',
-				}
-			)
-			request.get_method = lambda: 'PUT'
-			try:
-				response = urllib2.urlopen(request)
-			except urllib2.HTTPError as e:
-				logger.error(e.read())
-			else:
-				logger.info('Ticket PUT (Comment Added): HTTP {0}'.format(
-					response.getcode(),
-				))
-				d = json.loads(response.read())
+		)
+		try:
+			response = urllib2.urlopen(request)
+		except urllib2.HTTPError as e:
+			logger.error(e.read())
+		else:
+			ticket_url = response.info()['Location']
+			logger.info('Ticket POSTed to Zendesk: HTTP {0}: {1}'.format(
+				response.getcode(),
+				response.info()['Location'],
+			))
+			zd_ticket = json.loads(response.read())
 
 	def migrate_ticket(self, fd_tid):
 		logger.info('Migrating Freshdesk Ticket ID #{0}'.format(fd_tid))
 		fd_ticket = self.freshdesk_get_ticket(fd_tid)
 		self.zendesk_post_ticket(fd_ticket)
 
-	def migrate_all(self, ticket_max):
+	def migrate_all(self, ticket_min, ticket_max, ticket_int):
 		fail = 0
 		success = 0
-		for i in xrange(ticket_max):
+		for i in xrange(ticket_min, ticket_max, ticket_int):
 			fd_tid = i + 1
 			try:
 				self.migrate_ticket(fd_tid)
@@ -345,6 +318,82 @@ Status: {status}
 			success,
 			fail,
 		))
+
+	def fresh_to_zen(self, usrid):
+		request = urllib2.Request(
+			url=self.freshdesk_base_url + '/contacts/{}.json'.format(usrid),
+			headers={
+				'Authorization':self.freshdesk_header_auth,
+				'Content-Type':'application/json',
+			}
+		)
+		response = urllib2.urlopen(request)
+		resp = json.loads(response.read())
+		name = resp["user"]["name"]
+		email = resp["user"]["email"]
+
+		request = urllib2.Request(
+			url=self.zendesk_base_url + '/api/v2/users/search.json?{}'.format(urllib.urlencode({"query": email})),
+			headers={
+				'Authorization':self.zendesk_header_auth,
+				'Content-Type':'application/json',
+			}
+		)
+		response = urllib2.urlopen(request)
+		resp = json.loads(response.read())
+		if len(resp["users"]) == 0:
+			return self.create_zen_user(email, name)
+		else:
+			return resp["users"][0]["id"]
+
+	def get_fresh_user_list(self):
+		request = urllib2.Request(
+			url=self.freshdesk_base_url + '/contacts.json',
+			headers={
+				'Authorization':self.freshdesk_header_auth,
+				'Content-Type':'application/json',
+			}
+		)
+		response = urllib2.urlopen(request)
+		resp = json.loads(response.read())
+		resp = { x["user"]["id"]: (x["user"]["email"].lower(), x["user"]["name"]) for x in resp if x["user"]["email"] }
+		return resp
+
+	def create_zen_user(self, email, name):
+		request = urllib2.Request(
+			url=self.zendesk_base_url + '/api/v2/users.json',
+			data=json.dumps({
+				"user": {"email": email, "name": name}
+			}),
+			headers={
+				'Authorization':self.zendesk_header_auth,
+				'Content-Type':'application/json',
+			}
+		)
+		response = urllib2.urlopen(request)
+		resp = json.loads(response.read())
+		return resp["user"]["id"]
+
+	def get_zen_user_list(self):
+		next_page = self.zendesk_base_url + '/api/v2/users.json'
+		all_resp = {}
+		while next_page:
+			print("loading {}".format(next_page))
+			request = urllib2.Request(
+				url=next_page,
+				headers={
+					'Authorization':self.zendesk_header_auth,
+					'Content-Type':'application/json',
+				}
+			)
+			response = urllib2.urlopen(request)
+			resp = json.loads(response.read())
+			next_page = resp["next_page"]
+			resp = resp["users"]
+			resp = { x["email"].lower(): x["id"] for x in resp if x["email"] }
+			for x, y in resp.items():
+				all_resp[x] = y
+		return all_resp
 
 if __name__ == '__main__':
 	freshdesk_company = 'Freshdesk Company here'	#Freshdesk log-in credentials
@@ -379,5 +428,7 @@ if __name__ == '__main__':
 			},
 		#status_migration={}
 	)
-	# Number of tickets to be migrated(728)
-	f2z.migrate_all(728)
+
+	# The first number is the begining of the range of freshdesk tickets you want to import. 
+	# The second number is the end of the range.  The third number should be 1.
+	f2z.migrate_all(0, 100, 1)
